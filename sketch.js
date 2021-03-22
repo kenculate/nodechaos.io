@@ -10,10 +10,20 @@ var mouse_pressY;
 var dragging = false;
 var layer1 = [];
 function setup() {
-  createCanvas(8000, 6000);
+  createCanvas(10000, 10000);
   for(let i=0; i<1000; i++)
   {
-    nodes.push(new Node(Math.random()*7000, Math.random()*5000, 150, 150, "node" + i));
+    nodes.push(new Node(Math.random()*10000, Math.random()*10000, 150, 150, "node" + i));
+  }
+  for(let i=0; i<1200; i++)
+  {
+    let ri = int(Math.random()*(nodes.length));
+    let node = nodes[int(Math.random()*(nodes.length))];
+    let knob = node.knob2;
+    knob.edges.push(
+      new Edge(
+        nodes[int(Math.random()*(nodes.length))].knob1, 
+        nodes[int(Math.random()*(nodes.length))].knob2));
   }
   nodes.push(new Node(100, 10, 150, 150, "node1"));
   nodes.push(new Node(350, 10, 150, 150, "node2"));
@@ -36,6 +46,7 @@ function draw() {
     nodes[i].is_inside(mouseX / zoom, mouseY / zoom);
     nodes[i].render();
   }
+  
   if (!selected_node && dragging)
   {
     noFill();
