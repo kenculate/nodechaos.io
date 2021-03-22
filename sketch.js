@@ -15,7 +15,7 @@ function setup() {
   {
     nodes.push(new Node(Math.random()*10000, Math.random()*10000, 150, 150, "node" + i));
   }
-  for(let i=0; i<1200; i++)
+  for(let i=0; i<1000; i++)
   {
     let ri = int(Math.random()*(nodes.length));
     let node = nodes[int(Math.random()*(nodes.length))];
@@ -33,14 +33,14 @@ function draw() {
   background(220);
   scale(zoom);
   
-  // for (let i=0; i < layer1.length; i++)
-  // {
-  //   layer1[i]();
-  // }
-  // while(layer1.length>0)
-  // {
-  //   layer1.pop();
-  // }
+  for (let i=0; i < layer1.length; i++)
+  {
+    layer1[i]();
+  }
+  while(layer1.length>0)
+  {
+    layer1.pop();
+  }
   for (let i=0; i < nodes.length; i++)
   {
     nodes[i].is_inside(mouseX / zoom, mouseY / zoom);
@@ -53,7 +53,10 @@ function draw() {
     stroke(10);
     rect(mouse_pressX / zoom, mouse_pressY / zoom, (mouseX - mouse_pressX) / zoom, (mouseY - mouse_pressY) / zoom);
   }
-  
+  scale(1/zoom);
+  fill(255, 0, 0);
+  textSize(20);
+  text("fps:" + int(frameRate()), 10, 10, 200, 50);
 }
 
 function mousePressed() {
@@ -216,9 +219,9 @@ class Knob{
   {
     for (let i=0; i < this.edges.length; i++)
     {
-      // let r = (edge=this.edges[i]) => {edge.render();}
-      // layer1.push(r);
-      this.edges[i].render();
+      let r = (edge=this.edges[i]) => {edge.render();}
+      layer1.push(r);
+      // this.edges[i].render();
     }
     noStroke();
     fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
