@@ -8,9 +8,9 @@ var offsetY;
 var mouse_pressX;
 var mouse_pressY;
 var dragging = false;
-
+var layer1 = [];
 function setup() {
-  createCanvas(800, 600);
+  createCanvas(8000, 6000);
   nodes.push(new Node(100, 10, 150, 150, "node1"));
   nodes.push(new Node(350, 10, 150, 150, "node2"));
 }
@@ -18,6 +18,11 @@ function setup() {
 function draw() {
   background(220);
   scale(zoom);
+  
+  for (let i=0; i < layer1.length; i++)
+  {
+    layer1[i]();
+  }
   for (let i=0; i < nodes.length; i++)
   {
     nodes[i].is_inside(mouseX / zoom, mouseY / zoom);
@@ -129,7 +134,9 @@ class Knob{
   {
     for (let i=0; i < this.edges.length; i++)
     {
-      this.edges[i].render();
+      let r = (edge=this.edges[i]) => {edge.render();}
+      layer1.push(r);
+      // this.edges[i].render();
     }
     noStroke();
     fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
