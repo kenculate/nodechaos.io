@@ -1,7 +1,8 @@
 let zoom = 1; // scaleFactor
 var nodes = [];
 var selected_node;
-var selected_knob;
+var input_knob;
+var output_knob;
 var offsetX;
 var offsetY;
 var mouse_pressX;
@@ -34,6 +35,11 @@ function mousePressed() {
   dragging = true;
   mouse_pressX = mouseX;
   mouse_pressY = mouseY;
+  if (output_knob != undefined)
+  {
+    output_knob.pressed = false;
+  }
+  var knob_clicked = false;
   for (let i=nodes.length-1; i >= 0; i--)
   {
     if (nodes[i].is_pressed())
@@ -43,21 +49,36 @@ function mousePressed() {
       offsetY = ((mouseY / zoom) - nodes[i].y);
       break;
     }
-    if (nodes[i].knob1.hover)
+    if (output_knob != undefined)
     {
-      selected_knob = nodes[i].knob1;
-      nodes[i].knob1.pressed = true;
-      break;
-    }
-    else if (nodes[i].knob2.hover)
-    {
-      selected_knob = nodes[i].knob2;
-      nodes[i].knob2.pressed = true;
-      break;
+      if (nodes[i].knob1.hover)
+      {
+        input_knob = nodes[i].knob1;
+        output_knob.edges.push(new Edge(input_knob, output_knob));
+        
+        output_knob.pressed = false;
+        input_knob = undefined;
+        output_knob = undefined;
+        break;
+      }
     }
     else
     {
-      selected_knob = undefined;
+      if (nodes[i].knob2.hover)
+      {
+        output_knob = nodes[i].knob2;
+        output_knob.pressed = true;
+        knob_clicked = true;
+        break;
+      }  
+    }
+  }
+  if (!knob_clicked)
+  {
+    if (output_knob != undefined)
+    {
+      output_knob.pressed = false;
+      output_knob = undefined;
     }
   }
   
@@ -77,11 +98,9 @@ function mouseReleased() {
   if (selected_node != undefined)
   {
     selected_node.pressed = false;
+    
   }
-  if (selected_knob != undefined)
-  {
-    selected_knob.pressed = false;
-  }
+  
   selected_node = undefined;
 }
 
@@ -95,6 +114,7 @@ class Knob{
     this.type = type;
     this.hover = false;
     this.pressed = false;
+    this.edges = [];
   }
   
   set_rect(x, y, w, h)
@@ -107,10 +127,32 @@ class Knob{
   
   render()
   {
+    for (let i=0; i < this.edges.length; i++)
+    {
+      this.edges[i].render();
+    }
+    noStroke();
     fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
     rect(this.x, this.y, this.w, this.h);
   }
 }
+
+class Edge
+{
+  constructor(input, output)
+  {
+    this.input = input;
+    this.output = output;
+  }
+  
+  render()
+  {
+    stroke(0, 0, 255);
+    line(this.output.x + (this.output.w /2), this.output.y + (this.output.h /2), 
+         this.input.x + (this.input.w /2), this.input.y + (this.input.w /2));
+  }
+}
+
 class Node{
   constructor(x, y, w, h, title)
   {
