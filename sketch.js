@@ -1,4 +1,4 @@
-let zoom = 1; // scaleFactor
+let zoom = 0.1; // scaleFactor
 var nodes = [];
 var selected_node;
 var input_knob;
@@ -11,6 +11,10 @@ var dragging = false;
 var layer1 = [];
 function setup() {
   createCanvas(8000, 6000);
+  for(let i=0; i<1000; i++)
+  {
+    nodes.push(new Node(Math.random()*7000, Math.random()*5000, 150, 150, "node" + i));
+  }
   nodes.push(new Node(100, 10, 150, 150, "node1"));
   nodes.push(new Node(350, 10, 150, 150, "node2"));
 }
@@ -19,10 +23,14 @@ function draw() {
   background(220);
   scale(zoom);
   
-  for (let i=0; i < layer1.length; i++)
-  {
-    layer1[i]();
-  }
+  // for (let i=0; i < layer1.length; i++)
+  // {
+  //   layer1[i]();
+  // }
+  // while(layer1.length>0)
+  // {
+  //   layer1.pop();
+  // }
   for (let i=0; i < nodes.length; i++)
   {
     nodes[i].is_inside(mouseX / zoom, mouseY / zoom);
@@ -34,6 +42,7 @@ function draw() {
     stroke(10);
     rect(mouse_pressX / zoom, mouse_pressY / zoom, (mouseX - mouse_pressX) / zoom, (mouseY - mouse_pressY) / zoom);
   }
+  
 }
 
 function mousePressed() {
@@ -109,56 +118,6 @@ function mouseReleased() {
   selected_node = undefined;
 }
 
-class Knob{
-  constructor(x, y, w, h, type)
-  {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.type = type;
-    this.hover = false;
-    this.pressed = false;
-    this.edges = [];
-  }
-  
-  set_rect(x, y, w, h)
-  {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-  }
-  
-  render()
-  {
-    for (let i=0; i < this.edges.length; i++)
-    {
-      let r = (edge=this.edges[i]) => {edge.render();}
-      layer1.push(r);
-      // this.edges[i].render();
-    }
-    noStroke();
-    fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
-    rect(this.x, this.y, this.w, this.h);
-  }
-}
-
-class Edge
-{
-  constructor(input, output)
-  {
-    this.input = input;
-    this.output = output;
-  }
-  
-  render()
-  {
-    stroke(0, 0, 255);
-    line(this.output.x + (this.output.w /2), this.output.y + (this.output.h /2), 
-         this.input.x + (this.input.w /2), this.input.y + (this.input.w /2));
-  }
-}
 
 class Node{
   constructor(x, y, w, h, title)
@@ -220,9 +179,61 @@ class Node{
   }
 }
 
+class Knob{
+  constructor(x, y, w, h, type)
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.type = type;
+    this.hover = false;
+    this.pressed = false;
+    this.edges = [];
+  }
+  
+  set_rect(x, y, w, h)
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+  
+  render()
+  {
+    for (let i=0; i < this.edges.length; i++)
+    {
+      // let r = (edge=this.edges[i]) => {edge.render();}
+      // layer1.push(r);
+      this.edges[i].render();
+    }
+    noStroke();
+    fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
+    rect(this.x, this.y, this.w, this.h);
+  }
+}
+
+class Edge
+{
+  constructor(input, output)
+  {
+    this.input = input;
+    this.output = output;
+  }
+  
+  render()
+  {
+    stroke(0, 0, 255);
+    line(this.output.x + (this.output.w /2), this.output.y + (this.output.h /2), 
+         this.input.x + (this.input.w /2), this.input.y + (this.input.w /2));
+  }
+}
+
+
 
 window.addEventListener("wheel", function(e) {
-  if (e.deltaY > 0)
+  if (e.deltaY < 0)
     zoom *= 1.05;
   else
     zoom *= 0.95;
