@@ -1,6 +1,7 @@
 let zoom = 1; // scaleFactor
 var nodes = [];
 var selected_node;
+var selected_knob;
 var offsetX;
 var offsetY;
 var mouse_pressX;
@@ -42,6 +43,22 @@ function mousePressed() {
       offsetY = ((mouseY / zoom) - nodes[i].y);
       break;
     }
+    if (nodes[i].knob1.hover)
+    {
+      selected_knob = nodes[i].knob1;
+      nodes[i].knob1.pressed = true;
+      break;
+    }
+    else if (nodes[i].knob2.hover)
+    {
+      selected_knob = nodes[i].knob2;
+      nodes[i].knob2.pressed = true;
+      break;
+    }
+    else
+    {
+      selected_knob = undefined;
+    }
   }
   
 }
@@ -61,9 +78,39 @@ function mouseReleased() {
   {
     selected_node.pressed = false;
   }
+  if (selected_knob != undefined)
+  {
+    selected_knob.pressed = false;
+  }
   selected_node = undefined;
 }
 
+class Knob{
+  constructor(x, y, w, h, type)
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.type = type;
+    this.hover = false;
+    this.pressed = false;
+  }
+  
+  set_rect(x, y, w, h)
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+  }
+  
+  render()
+  {
+    fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
+    rect(this.x, this.y, this.w, this.h);
+  }
+}
 class Node{
   constructor(x, y, w, h, title)
   {
@@ -76,6 +123,8 @@ class Node{
     this.pressed = false;
     this.title_height = 20;
     this.knob_size = 20;
+    this.knob1 = new Knob(0, 0, 20, 20);
+    this.knob2 = new Knob(0, 0, 20, 20);
     this.knob_rect1 = [0, 0, 0, 0];
     this.knob_rect2 = [0, 0, 0, 0];
     this.knob_hover = 0;
@@ -91,15 +140,12 @@ class Node{
     text(this.title, this.x + 5, this.y, this.w - 5, this.title_height);
     line(this.x, this.y + this.title_height, this.x + this.w, this.y + this.title_height);
     
-    this.knob_rect1 = [this.x - this.knob_size, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size];
-    this.knob_rect2 = [this.x + this.w, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size];
+    this.knob1.set_rect(this.x - this.knob_size, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
+    this.knob2.set_rect(this.x + this.w, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
     
     noStroke();
-    fill(this.knob_hover == 1 ? [255, 0, 0] : 170);
-    rect(this.knob_rect1[0], this.knob_rect1[1], this.knob_rect1[2], this.knob_rect1[3]);
-
-    fill(this.knob_hover == 2 ? [255, 0, 0] : 120);
-    rect(this.knob_rect2[0], this.knob_rect2[1], this.knob_rect2[2], this.knob_rect2[3]);
+    this.knob1.render();
+    this.knob2.render();
     
   }
   
@@ -107,11 +153,6 @@ class Node{
   {
     this.pressed = this.hover;
     return this.pressed;
-  }
-  
-  knob_pressed()
-  {
-      
   }
   
   rect_check(xin, yin, x, y, w, h)
@@ -123,10 +164,9 @@ class Node{
   {
     this.hover = this.rect_check(x, y, this.x, this.y, this.w, this.h);
     
-    let knob_check1 = this.rect_check(x, y, this.knob_rect1[0], this.knob_rect1[1], this.knob_rect1[2], this.knob_rect1[3]);
-    this.knob_hover = knob_check1 ? 1 : 0;
-    let knob_check2 = this.rect_check(x, y, this.knob_rect2[0], this.knob_rect2[1], this.knob_rect2[2], this.knob_rect2[3]);
-    this.knob_hover = knob_check2 ? 2 : knob_check1;
+    this.knob1.hover = this.rect_check(x, y, this.knob1.x, this.knob1.y,  this.knob1.w, this.knob1.h);
+    this.knob2.hover = this.rect_check(x, y, this.knob2.x, this.knob2.y,  this.knob2.w, this.knob2.h);
+    
     return this.hover;
   }
 }
