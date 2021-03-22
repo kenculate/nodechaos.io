@@ -139,12 +139,13 @@ class Node{
   }
   
   render(){
-    stroke(150);
+    // stroke(150);
+    noStroke();
     fill(this.pressed ? 150 : this.hover ? 100 : 50);
     rect(this.x, this.y, this.w, this.h);
     
     fill(255);
-    textAlign(CENTER, CENTER);
+    // textAlign(CENTER, CENTER);
     text(this.title, this.x + 5, this.y, this.w - 5, this.title_height);
     line(this.x, this.y + this.title_height, this.x + this.w, this.y + this.title_height);
     
