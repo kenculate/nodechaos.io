@@ -119,28 +119,25 @@ function draw_nodes()
       }
     nodes[i].render();
   }
-  // for (let i=0; i < selected_nodes.length; i++)
-  // {
-  //   print(nodes[i]);
-  // }
 }
+
 function check_deselect()
 {
   deselect = true;
-  for (let i=0; i < nodes.length; i++)
+  for (let i=0; i < selected_nodes.length; i++)
   {
-    if (nodes[i].hover)
+    if (selected_nodes[i].hover)
     {
       deselect = false;
     }
   }
   if (deselect)
   {
-    for (let i=0; i < nodes.length; i++)
-  {
-      nodes[i].hover = false;
-      nodes[i].pressed = false;
-      nodes[i].selected = false;
+    for (let i=0; i < selected_nodes.length; i++)
+    {
+      selected_nodes[i].hover = false;
+      selected_nodes[i].pressed = false;
+      selected_nodes[i].selected = false;
     }
     selected_nodes = [];
   }
@@ -217,6 +214,7 @@ function mouseDragged() {
   {
     if (nodes[i].pressed)
     {
+      dragging = false;
       if (!selected_nodes.includes(nodes[i]))
       {
         selected_nodes.push(nodes[i]);
