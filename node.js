@@ -1,9 +1,10 @@
 
 class Node{
 
-    constructor(x, y, w, h, title)
+    constructor(x, y, w, h, index)
     {
-      this.detail = new Detail(this, title);
+      this.detail = new Detail(this, "node_" + index);
+      this.index = index;
       this.x = x;
       this.y = y;
       this.w = w;
@@ -13,13 +14,11 @@ class Node{
       this.selected = false;
       this.title_height = 20;
       this.knob_size = 20;
-      print(Knob);
       this.knob1 = new Knob(0, 0, 20, 20, KnobType.input);
       this.knob2 = new Knob(0, 0, 20, 20, KnobType.output);
       this.knob_rect1 = [0, 0, 0, 0];
       this.knob_rect2 = [0, 0, 0, 0];
       this.knob_hover = 0;
-      print(this);
     }
     
     render(){
@@ -134,10 +133,9 @@ class Node{
     {
       noFill();
       stroke(255, 0, 0);
-      curve(this.output.center.x-150, this.output.center.y, this.output.center.x, this.output.center.y,
-        this.input.center.x, this.input.center.y, this.input.center.x+150, this.input.center.y 
+      curve(this.output.center.x-250, this.output.center.y, this.output.center.x, this.output.center.y,
+        this.input.center.x, this.input.center.y, this.input.center.x+250, this.input.center.y 
       )
       stroke(0, 0, 255);
-      // line(this.output.center.x, this.output.center.y, this.input.center.x, this.input.center.y);
     }
   }

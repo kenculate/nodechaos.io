@@ -26,8 +26,7 @@ var mouse_state = MouseState.None;
 function setup() {
   createCanvas(10000, 10000);
   
-  nodes.push(new Node(100, 100, 150, 150, "node1"));
-  nodes.push(new Node(350, 10, 150, 150, "node2"));
+  nodes.push(new Node(100, 100, 150, 150, 1));
 }
 
 function add_nodes()
@@ -255,7 +254,14 @@ function mouseReleased() {
   mouse_press.x = 0;
   mouse_press.y = 0;
 }
-
+function keyPressed() {
+  // 78 == n
+  if (keyCode == 78)
+  {
+    print(nodes[nodes.length-1]);
+    nodes.push(new Node(transposex(mouseX), transposey(mouseY), 150, 150, nodes[nodes.length-1].index+1));
+  }
+}
 window.addEventListener("wheel", function(e) {
   if (e.deltaY < 0)
     zoom *= 1.05;
