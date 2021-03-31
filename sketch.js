@@ -1,24 +1,27 @@
+
+
 let zoom = 1; // scaleFactor
 var nodes = [];
-var selected_node;
+var selected_nodes = [];
 var input_knob;
 var output_knob;
-var offsetX;
-var offsetY;
-var mouse_pressX;
-var mouse_pressY;
-var last_mousex;
-var last_mousey;
-var panx = 0;
-var pany = 0;
+var mouse_press = new vector();
+var mouse_last = new vector();
+var pan = new vector();
+var offset = new vector();
+
+
 var dragging = false;
 var panning = false;
 var layer1 = [];
 
-function rand(min, max)
-{
-  return Math.random() * (max-min) + min;
-}
+var MouseState = {
+  None : 'None',
+  Press : 'Press',
+  Drag : 'Drag',
+  Release : 'Release'
+};
+var mouse_state = MouseState.None;
 
 function setup() {
   createCanvas(10000, 10000);
@@ -46,20 +49,17 @@ function add_nodes()
 }
 
 function transposex(v){
-  return (v - panx)/ zoom ;
+  return (v - pan.x)/ zoom ;
 }
 
 function transposey(v){
-  return (v - pany)/ zoom ;
+  return (v - pan.y)/ zoom ;
 }
 
 function draw() {
   background(220);
-  if (panning)
-  {
-    
-  }
-  translate(panx, pany);
+  
+  translate(pan.x, pan.y);
   scale(zoom);
   
   for (let i=0; i < layer1.length; i++)
@@ -70,66 +70,112 @@ function draw() {
   {
     layer1.pop();
   }
-  for (let i=0; i < nodes.length; i++)
-  {
-    if (!dragging)
-    {
-      nodes[i].is_inside(transposex(mouseX), transposey(mouseY));
-    }
-    else
-    {
-      if (nodes[i].intersect(transposex(mouse_pressX), transposey(mouse_pressY), transposex(mouseX), transposey(mouseY)))
-      {
-        nodes[i].hover = true;
-      }
-    }
-    
-    
-    nodes[i].render();
-  }
-  
-  if (!selected_node && dragging)
-  {
-    noFill();
-    stroke(10);
-    rect(transposex(mouse_pressX), transposey(mouse_pressY), (mouseX - mouse_pressX) / zoom, (mouseY - mouse_pressY) / zoom);
-  }
+  draw_selected_edge();
+
+  draw_nodes();
+  draw_selection();
+
   scale(1/zoom);
-  translate(-panx, -pany);
+  translate(-pan.x, -pan.y);
   
   fill(255, 0, 0);
   textSize(20);
   text("fps:" + int(frameRate()), 10, 10, 200, 50);
 }
 
+function draw_selected_edge()
+{
+  if (output_knob != undefined)
+  {
+    stroke(0, 0, 255);
+    line(output_knob.center.x, output_knob.center.y, mouseX, mouseY);
+  }
+}
+function draw_selection()
+{
+  if (dragging)
+  {
+    noFill();
+    stroke(10);
+    rect(transposex(mouse_press.x), transposey(mouse_press.y), (mouseX - mouse_press.x) / zoom, (mouseY - mouse_press.y) / zoom);
+  }
+}
+function draw_nodes()
+{
+
+  for (let i=0; i < nodes.length; i++)
+  {
+      nodes[i].is_hover(transposex(mouseX), transposey(mouseY));
+      if (!dragging)
+      {
+        nodes[i].is_inside(transposex(mouseX), transposey(mouseY));
+      }
+      else
+      {
+        if (nodes[i].intersect(transposex(mouse_press.x), transposey(mouse_press.y), transposex(mouseX), transposey(mouseY)))
+        {
+          nodes[i].hover = true;
+        }
+      }
+    nodes[i].render();
+  }
+  // for (let i=0; i < selected_nodes.length; i++)
+  // {
+  //   print(nodes[i]);
+  // }
+}
+function check_deselect()
+{
+  deselect = true;
+  for (let i=0; i < nodes.length; i++)
+  {
+    if (nodes[i].hover)
+    {
+      deselect = false;
+    }
+  }
+  if (deselect)
+  {
+    for (let i=0; i < nodes.length; i++)
+  {
+      nodes[i].hover = false;
+      nodes[i].pressed = false;
+      nodes[i].selected = false;
+    }
+    selected_nodes = [];
+  }
+  return deselect;
+}
+
 function mousePressed(event) {
-  mouse_pressX = mouseX;
-  mouse_pressY = mouseY;
+  deselect = check_deselect();
+  mouse_state = MouseState.Press;
+  mouse_press.x = mouseX;
+  mouse_press.y = mouseY;
+
+  mouse_last.x = mouseX;
+  mouse_last.y = mouseY;
     
   if (mouseButton === CENTER)
   {
     panning = true;
-    last_mousex = mouseX;
-    last_mousey = mouseY;
+    mouse_last.x = mouseX;
+    mouse_last.y = mouseY;
   }
   else
   {
     panning = false;
-    dragging = true;
+    dragging = deselect;
     if (output_knob != undefined)
     {
       output_knob.pressed = false;
     }
     var knob_clicked = false;
-    for (let i=nodes.length-1; i >= 0; i--)
+    for (let i=0; i < nodes.length; i++)
     {
-      if (nodes[i].is_pressed())
-      {
-        selected_node = nodes[i];
-        offsetX = ((mouseX / zoom) - nodes[i].x);
-        offsetY = ((mouseY / zoom) - nodes[i].y);
-        break;
-      }
+      nodes[i].is_pressed(transposex(mouseX), transposey(mouseY));
+
+      // check input/output knob pressed
       if (output_knob != undefined)
       {
         if (nodes[i].knob1.hover)
@@ -140,7 +186,6 @@ function mousePressed(event) {
           output_knob.pressed = false;
           input_knob = undefined;
           output_knob = undefined;
-          break;
         }
       }
       else
@@ -154,6 +199,7 @@ function mousePressed(event) {
         }  
       }
     }
+
     if (!knob_clicked)
     {
       if (output_knob != undefined)
@@ -166,163 +212,51 @@ function mousePressed(event) {
 }
 
 function mouseDragged() {
-  if (selected_node)
+  mouse_state = MouseState.Drag;
+  for (let i=0; i < nodes.length; i++)
   {
-    selected_node.x = ((mouseX / zoom) - offsetX);
-    selected_node.y = ((mouseY / zoom) - offsetY);
+    if (nodes[i].pressed)
+    {
+      if (!selected_nodes.includes(nodes[i]))
+      {
+        selected_nodes.push(nodes[i]);
+      } 
+    }
+    nodes[i].intersect(transposex(mouse_press.x), transposey(mouse_press.y), transposex(mouseX), transposey(mouseY));
+  }
+  for (let i=0; i < selected_nodes.length; i++)
+  {
+    selected_nodes[i].x += ((mouseX-mouse_last.x));
+    selected_nodes[i].y += ((mouseY-mouse_last.y));
   }
   if (panning)
   {
-    panx += mouseX - last_mousex;
-    pany += mouseY - last_mousey;
-    last_mousex = mouseX;
-    last_mousey = mouseY;
+    pan.x += mouseX - mouse_last.x;
+    pan.y += mouseY - mouse_last.y;
   }
+  mouse_last.x = mouseX;
+  mouse_last.y = mouseY;
 }
 
 function mouseReleased() {
+  mouse_state = MouseState.Release;
+  if (selected_nodes.length <=1)
+  {
+    selected_nodes=[];
+    for (let i=0; i < nodes.length; i++)
+    {
+      if (nodes[i].is_selected())
+      {
+        selected_nodes.push(nodes[i]);
+      }
+    }
+  }
+
   dragging = false;
   panning = false;
-  if (selected_node != undefined)
-  {
-    selected_node.pressed = false;
-    
-  }
-  mouse_pressX = 0;
-  mouse_pressY = 0;
-  selected_node = undefined;
-  
+  mouse_press.x = 0;
+  mouse_press.y = 0;
 }
-
-
-class Node{
-  constructor(x, y, w, h, title)
-  {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.title = title;
-    this.hover = false;
-    this.pressed = false;
-    this.title_height = 20;
-    this.knob_size = 20;
-    this.knob1 = new Knob(0, 0, 20, 20);
-    this.knob2 = new Knob(0, 0, 20, 20);
-    this.knob_rect1 = [0, 0, 0, 0];
-    this.knob_rect2 = [0, 0, 0, 0];
-    this.knob_hover = 0;
-  }
-  
-  render(){
-    noStroke();
-    fill(this.pressed ? 150 : this.hover ? 100 : 50);
-    rect(this.x, this.y, this.w, this.h);
-    
-    fill(255);
-    // textAlign(CENTER, CENTER);
-    text(this.title, this.x + 5, this.y, this.w - 5, this.title_height);
-    
-    this.knob1.set_rect(this.x - this.knob_size, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
-    this.knob2.set_rect(this.x + this.w, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
-    
-    noStroke();
-    this.knob1.render();
-    this.knob2.render();
-    
-  }
-  
-  is_pressed()
-  {
-    this.pressed = this.hover;
-    return this.pressed;
-  }
-  
-  intersect(left, top, right, bottom)
-  {
-    
-    // [right, left] = right<left ? [left, right] : [right, left];
-    // [top, bottom] = top < bottom ? [bottom, top] : [top, bottom];
-    // if(right<left)
-    // {
-    //   [right, left] = [left, right];
-    // }
-    // if (top < bottom)
-    // {
-    //   [top, bottom] = [bottom, top];
-    // }
-    // rect(left, top, right - left, bottom - top);
-    return this.x > left && this.x + this.w < right && this.y > top && this.y + this.h < bottom;
-  }
-  
-  rect_check(xin, yin, x, y, w, h)
-  {
-    return (xin > x && xin < x + w && yin > y && yin < y + h);
-  }
-  
-  is_inside(x, y)
-  {
-    this.hover = this.rect_check(x, y, this.x, this.y, this.w, this.h);
-    
-    this.knob1.hover = this.rect_check(x, y, this.knob1.x, this.knob1.y,  this.knob1.w, this.knob1.h);
-    this.knob2.hover = this.rect_check(x, y, this.knob2.x, this.knob2.y,  this.knob2.w, this.knob2.h);
-    
-    return this.hover;
-  }
-}
-
-class Knob{
-  constructor(x, y, w, h, type)
-  {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.type = type;
-    this.hover = false;
-    this.pressed = false;
-    this.edges = [];
-  }
-  
-  set_rect(x, y, w, h)
-  {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-  }
-  
-  render()
-  {
-    for (let i=0; i < this.edges.length; i++)
-    {
-      let r = (edge=this.edges[i]) => {edge.render();}
-      layer1.push(r);
-      // this.edges[i].render();
-    }
-    noStroke();
-    fill(this.pressed ? [255, 0, 0] : this.hover ? 170 : 100);
-    rect(this.x, this.y, this.w, this.h);
-  }
-}
-
-class Edge
-{
-  constructor(input, output)
-  {
-    this.input = input;
-    this.output = output;
-  }
-  
-  render()
-  {
-    stroke(0, 0, 255);
-    line(this.output.x + (this.output.w /2), this.output.y + (this.output.h /2), 
-         this.input.x + (this.input.w /2), this.input.y + (this.input.w /2));
-  }
-}
-
-
 
 window.addEventListener("wheel", function(e) {
   if (e.deltaY < 0)
