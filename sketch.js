@@ -3,6 +3,7 @@
 let zoom = 1; // scaleFactor
 var nodes = [];
 var selected_nodes = [];
+var editing_node;
 var input_knob;
 var output_knob;
 var mouse_press = new vector();
@@ -24,9 +25,18 @@ var MouseState = {
 var mouse_state = MouseState.None;
 
 function setup() {
-  createCanvas(10000, 10000);
-  
+  var canvas = createCanvas(10000, 10000);
+  canvas.parent('canvasdiv');
   nodes.push(new Node(100, 100, 150, 150, 1));
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
+    toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
+    toolbar_mode: 'floating',
+    tinycomments_mode: 'embedded',
+    tinycomments_author: 'Author name',
+    height: '800px',
+});
 }
 
 function add_nodes()
@@ -254,11 +264,21 @@ function mouseReleased() {
   mouse_press.x = 0;
   mouse_press.y = 0;
 }
+
+function doubleClicked()
+{
+  for (let i=0; i < nodes.length; i++)
+  {
+    if (nodes[i].is_hover(transposex(mouseX), transposey(mouseY)))
+    {
+      on_node_selected(nodes[i]);
+    }
+  }
+}
 function keyPressed() {
   // 78 == n
   if (keyCode == 78)
   {
-    print(nodes[nodes.length-1]);
     nodes.push(new Node(transposex(mouseX), transposey(mouseY), 150, 150, nodes[nodes.length-1].index+1));
   }
 }
@@ -268,3 +288,16 @@ window.addEventListener("wheel", function(e) {
   else
     zoom *= 0.95;
 });
+
+function on_node_selected(node)
+{
+  editing_node = node;
+  document.getElementById("txt_title").value = node.detail.title;
+  tinymce.get("textarea").setContent(node.detail.text);
+}
+
+function save_clicked()
+{
+  editing_node.detail.title = document.getElementById("txt_title").value;
+  editing_node.detail.text = tinymce.get("textarea").getContent();
+}
