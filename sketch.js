@@ -293,7 +293,7 @@ function on_node_selected(node)
 {
   editing_node = node;
   document.getElementById("txt_title").value = node.detail.title;
-  tinymce.get("textarea").setContent(node.detail.text);
+  tinymce.get("textarea").setContent(node.detail.text?node.detail.text:'');
 }
 
 function save_clicked()
@@ -337,10 +337,7 @@ window.addEventListener('load', function() {
         // This event listener will happen when the reader has read the file
         reader.addEventListener('load', function() {
           var result = JSON.parse(reader.result); // Parse the result into an object 
-          
-          console.log(result);
-
-          nodes = result;
+          load_data(result);
         });
         
         reader.readAsText(upload.files[0]); // Read the uploaded file

@@ -6,32 +6,57 @@ function reset_data()
   nodes_dic = {};
   knobs_dic = {};
   edges_dic = {};
+  nodes=[];
 }
 
-function load_data(node)
+function load_data(nodes_data)
 {
-  var _nodes = []
-  for(var i=0; i< nodes.length;i++)
+  reset_data();
+  for(var i=0; i< nodes_data.length;i++)
   {
-    let node = new Node(nodes[i].x, nodes[i].y, nodes[i].w, nodes[i].h, nodes[i].index);
-    _nodes.push(node);
-    nodes_dic[nodes[i]] = node;
-
+    var node = new Node(
+      nodes_data[i].x, nodes_data[i].y, nodes_data[i].w, nodes_data[i].h, 
+      nodes_data[i].index, nodes_data[i].uuid, 
+      nodes_data[i].knob1.uuid, nodes_data[i].knob2.uuid, 
+      nodes_data[i].detail);
+    nodes.push(node);
+    nodes_dic[nodes_data[i]] = node;
+  }
+  for(var i=0; i< nodes_data.length;i++)
+  {
+    for(var j=0; j< nodes_data[i].knob2.edges.length;j++)
+    {
+      var edge = new Edge(
+        knobs_dic[nodes_data[i].knob2.edges[j].input],
+        knobs_dic[nodes_data[i].knob2.edges[j].output],
+        nodes_data[i].knob2.edges[j].uuid
+      ); 
+      
+      nodes_dic[nodes_data[i].uuid].knob2.edges.push(edge);
+      edges_dic[edge.uuid] = edge;
+    }
   }
 }
 class Base{
-  constructor()
+  constructor(uuid=null)
   {
-    this.uuid = uuidv4();
+    if (!uuid)
+    {
+      this.uuid = uuidv4();
+    }
+    else{
+      this.uuid = uuid;
+    }
   }
 }
+
 class Node extends Base{
 
-    constructor(x, y, w, h, index, )
+    constructor(x, y, w, h, index, uuid=null, knob1_uuid=null , knob2_uuid=null, detail=null)
     {
-      super();
+      super(uuid);
       nodes_dic[this.uuid] = this;
-      this.detail = new Detail(this, "node_" + index);
+      this.detail = new Detail(this, "node_" + index, '', detail=detail);
       this.index = index;
       this.x = x;
       this.y = y;
@@ -42,8 +67,8 @@ class Node extends Base{
       this.selected = false;
       this.title_height = 20;
       this.knob_size = 20;
-      this.knob1 = new Knob(0, 0, 20, 20, KnobType.input);
-      this.knob2 = new Knob(0, 0, 20, 20, KnobType.output);
+      this.knob1 = new Knob(0, 0, 20, 20, KnobType.input, knob1_uuid);
+      this.knob2 = new Knob(0, 0, 20, 20, KnobType.output, knob2_uuid);
       this.knob_rect1 = [0, 0, 0, 0];
       this.knob_rect2 = [0, 0, 0, 0];
       this.knob_hover = 0;
@@ -111,11 +136,13 @@ class Node extends Base{
     input: 'input',
     output:'output'
   }
+
+
   class Knob extends Base{
     
-    constructor(x, y, w, h, type)
+    constructor(x, y, w, h, type, uuid=null)
     {
-      super();
+      super(uuid);
       knobs_dic[this.uuid] = this;
 
       this.x = x;
@@ -142,7 +169,8 @@ class Node extends Base{
     {
       for (let i=0; i < this.edges.length; i++)
       {
-        let r = (edge=this.edges[i]) => {edge.render();}
+        var _edge = this.edges[i];
+        let r = (edge=_edge) => {_edge.render();}
         layer1.push(r);
         // this.edges[i].render();
       }
@@ -154,9 +182,9 @@ class Node extends Base{
   
   class Edge extends Base
   {
-    constructor(input, output)
+    constructor(input, output, uuid=null)
     {
-      super();
+      super(uuid);
       edges_dic[this.uuid] = this;
       this.input = input.uuid;
       this.output = output.uuid;
@@ -166,8 +194,15 @@ class Node extends Base{
     {
       noFill();
       stroke(255, 0, 0);
-      curve(knobs_dic[this.output].center.x-250, knobs_dic[this.output].center.y, knobs_dic[this.output].center.x, knobs_dic[this.output].center.y,
-        knobs_dic[this.input].center.x, knobs_dic[this.input].center.y, knobs_dic[this.input].center.x+250, knobs_dic[this.input].center.y 
+      curve(
+        knobs_dic[this.output].center.x-250, 
+        knobs_dic[this.output].center.y, 
+        knobs_dic[this.output].center.x, 
+        knobs_dic[this.output].center.y,
+        knobs_dic[this.input].center.x, 
+        knobs_dic[this.input].center.y, 
+        knobs_dic[this.input].center.x+250, 
+        knobs_dic[this.input].center.y 
       )
       stroke(0, 0, 255);
     }
