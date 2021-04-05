@@ -75,14 +75,25 @@ class Node extends Base{
     }
 
     render(){
-      noStroke();
+      if (this == editing_node)
+      {
+        stroke('#FFD16E');
+        strokeWeight(10);
+      }
       fill(this.selected ? [255, 0, 0] : this.hover ? [0, 0, 255] : this.pressed ? [0, 255, 0] : 50);
       rect(this.x, this.y, this.w, this.h);
+      noStroke();
+      strokeWeight(1);
+
+      fill(100);
+      rect(this.x, this.y, this.w, this.title_height);
       
       fill(255);
+
       // textAlign(CENTER, CENTER);
       text(this.detail.title, this.x + 5, this.y, this.w - 5, this.title_height);
-      
+      text(this.detail.short_text, 
+        this.x + 5, this.y + this.title_height + 5, this.w - 15, this.h - + this.title_height + 5);
       this.knob1.set_rect(this.x - this.knob_size, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
       this.knob2.set_rect(this.x + this.w, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
       
@@ -194,7 +205,7 @@ class Node extends Base{
     render()
     {
       noFill();
-      stroke(255, 0, 0);
+      stroke('#13489C');
       curve(
         knobs_dic[this.output].center.x-250, 
         knobs_dic[this.output].center.y, 

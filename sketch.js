@@ -10,7 +10,6 @@ var mouse_press = new vector();
 var mouse_last = new vector();
 var pan = new vector();
 var offset = new vector();
-
 var dragging = false;
 var panning = false;
 var layer1 = [];
@@ -321,53 +320,38 @@ function save_clicked()
 {
   editing_node.detail.title = document.getElementById("txt_title").value;
   editing_node.detail.text = tinymce.get("textarea").getContent();
+  editing_node.detail.short_text = tinymce.get("textarea").getContent({ format: 'text' }).substring(0, 60) + '..';
 }
 
 function openbook_clicked()
 {
-  print("open book");
+  document.getElementById("file").click();
 }
 
 function savebook_clicked()
 {
-  var fileName = 'myData.json';
-
-  // Create a blob of the data
+  var fileName = 'nodechaos_book.json';
   var fileToSave = new Blob([JSON.stringify(nodes)], {
       type: 'application/json',
       name: fileName
   });
-
-  // Save the file
   saveAs(fileToSave, fileName);
-  // saveAs("test.txt", "testsetset testse ");
 }
 
 window.addEventListener('load', function() {
   var upload = document.getElementById('file');
-  
-  // Make sure the DOM element exists
   if (upload) 
   {
     upload.addEventListener('change', function() {
-      // Make sure a file was selected
       if (upload.files.length > 0) 
       {
-        var reader = new FileReader(); // File reader to read the file 
-        
-        // This event listener will happen when the reader has read the file
+        var reader = new FileReader();
         reader.addEventListener('load', function() {
-          var result = JSON.parse(reader.result); // Parse the result into an object 
+          var result = JSON.parse(reader.result); 
           load_data(result);
         });
-        
-        reader.readAsText(upload.files[0]); // Read the uploaded file
+        reader.readAsText(upload.files[0]);
       }
     });
   }
 });
-
-function thisFileUpload() {
-  document.getElementById("file").click();
-};
-
