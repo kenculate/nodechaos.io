@@ -21,3 +21,12 @@ function rand(min, max)
 {
   return Math.random() * (max-min) + min;
 }
+
+function convertToPlain(rtf) {
+  // rtf = rtf.replace(/\\par[d]?/g, "");
+  // rtf = rtf.replace(/\{\*?\\[^{}]+}|[{}]|\\\n?[A-Za-z]+\n?(?:-?\d+)?[ ]?/g, "")
+  // rtf = rtf.replace(/\\'[0-9a-zA-Z]{2}/g, "").trim();
+  rtf = rtf.replace(/<[/]?\w>/g, '');
+  print(rtf);
+  return rtf;
+}
