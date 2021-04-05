@@ -11,11 +11,14 @@ var mouse_last = new vector();
 var pan = new vector();
 var offset = new vector();
 
-
 var dragging = false;
 var panning = false;
 var layer1 = [];
 
+var BookState = {
+  Read : 'Read',
+  Edit : 'Edit'
+};
 var MouseState = {
   None : 'None',
   Press : 'Press',
@@ -23,6 +26,7 @@ var MouseState = {
   Release : 'Release'
 };
 var mouse_state = MouseState.None;
+var book_state = BookState.Edit;
 
 function setup() {
   var canvas = createCanvas(10000, 10000);
@@ -30,13 +34,14 @@ function setup() {
   nodes.push(new Node(100, 100, 150, 150, 1));
   tinymce.init({
     selector: 'textarea',
+    menubar: false,
     plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
     toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
     toolbar_mode: 'floating',
     tinycomments_mode: 'embedded',
     tinycomments_author: 'Author name',
-    height: '800px',
-});
+    height: '600px',
+  });
 }
 
 function add_nodes()
@@ -97,7 +102,7 @@ function draw_selected_edge()
   if (output_knob != undefined)
   {
     stroke(0, 0, 255);
-    line(output_knob.center.x, output_knob.center.y, mouseX, mouseY);
+    line(output_knob.center.x, output_knob.center.y, transposex(mouseX), transposey(mouseY));
   }
 }
 function draw_selection()
@@ -188,7 +193,6 @@ function mousePressed(event) {
         {
           input_knob = nodes[i].knob1;
           output_knob.edges.push(new Edge(input_knob, output_knob));
-
           output_knob.pressed = false;
           input_knob = undefined;
           output_knob = undefined;
@@ -294,6 +298,23 @@ function on_node_selected(node)
   editing_node = node;
   document.getElementById("txt_title").value = node.detail.title;
   tinymce.get("textarea").setContent(node.detail.text?node.detail.text:'');
+  var table = document.getElementById("edge_table");
+  var count = table.rows.length;
+  for(var i=0; i< count;i++)
+  {
+    table.deleteRow(0);
+  }
+  for(var i=0; i< node.knob2.edges.length;i++)
+  {
+    var row = table.insertRow(table.rows.length);
+    let output = nodes_dic[knobs_dic[node.knob2.edges[i].input].node];
+    row.onclick = (event, selected_node=output) => {
+      on_node_selected(selected_node);
+    }
+    var cell = row.insertCell(0);
+    var newText = document.createTextNode(output.detail.title);
+    cell.appendChild(newText);
+  }
 }
 
 function save_clicked()
@@ -349,3 +370,4 @@ window.addEventListener('load', function() {
 function thisFileUpload() {
   document.getElementById("file").click();
 };
+

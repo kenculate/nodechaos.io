@@ -67,8 +67,8 @@ class Node extends Base{
       this.selected = false;
       this.title_height = 20;
       this.knob_size = 20;
-      this.knob1 = new Knob(0, 0, 20, 20, KnobType.input, knob1_uuid);
-      this.knob2 = new Knob(0, 0, 20, 20, KnobType.output, knob2_uuid);
+      this.knob1 = new Knob(this, 0, 0, 20, 20, KnobType.input, knob1_uuid);
+      this.knob2 = new Knob(this, 0, 0, 20, 20, KnobType.output, knob2_uuid);
       this.knob_rect1 = [0, 0, 0, 0];
       this.knob_rect2 = [0, 0, 0, 0];
       this.knob_hover = 0;
@@ -140,11 +140,11 @@ class Node extends Base{
 
   class Knob extends Base{
     
-    constructor(x, y, w, h, type, uuid=null)
+    constructor(node, x, y, w, h, type, uuid=null)
     {
       super(uuid);
       knobs_dic[this.uuid] = this;
-
+      this.node = node.uuid;
       this.x = x;
       this.y = y;
       this.w = w;
@@ -169,10 +169,10 @@ class Node extends Base{
     {
       for (let i=0; i < this.edges.length; i++)
       {
-        var _edge = this.edges[i];
-        let r = (edge=_edge) => {_edge.render();}
-        layer1.push(r);
-        // this.edges[i].render();
+        // var _edge = this.edges[i];
+        // let r = (edge=_edge) => {_edge.render();}
+        // layer1.push(r);
+        this.edges[i].render();
       }
       noStroke();
       fill(this.pressed ? [255, 0, 0, 50] : this.hover ? 170 : [100, 100, 100, 50]);
@@ -188,6 +188,7 @@ class Node extends Base{
       edges_dic[this.uuid] = this;
       this.input = input.uuid;
       this.output = output.uuid;
+      print(this.input, this.output);
     }
     
     render()

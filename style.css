@@ -2,6 +2,16 @@ html, body {
   margin: 0;
   padding: 0;
 }
+div {
+  border-radius: 5px;
+}
+button {
+  border-radius: 5px;
+}
 canvas {
   display: block;
+}
+
+.bg-blue{
+  background-color: #337ab7;
 }
