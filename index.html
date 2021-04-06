@@ -34,13 +34,14 @@
         <div class="col-md-4 px-0  mx-0" style="position: relative;">
           <div class="d-flex w-auto px-0 mx-0" style="height: 30px;">
             <input type="file" id="file" style="display:none;" />
-            <div class="bg-blue text-white align-middle text-center pt-2 mx-1 flex-fill"  id="button" name="button" value="Upload" onclick="openbook_clicked();">Open Book</div>
-            <div class="bg-blue text-white align-middle text-center pt-2 mx-1 flex-fill"  onclick="savebook_clicked()">Save Book</div>
+            <div class="btn text-white align-middle text-center mx-1 flex-fill"  id="button" name="button" value="Upload" onclick="openbook_clicked();">Open Book</div>
+            <div class="btn text-white align-middle text-center mx-1 flex-fill"  onclick="savebook_clicked()">Save Book</div>
           </div> 
           
-          <div class="col bg-blue text-white text-center pt-2 my-1 mx-1 flex-fill" style="height: 30px;" onclick="save_clicked()">Save Node</div>
-
-          <div class="col py-1">
+          <div class="d-flex w-auto py-1 px-0 mx-0" style="height: 30px;">
+            <div class="btn text-white align-middle text-center mx-1 flex-fill" style="height: 30px;" onclick="save_clicked()">Save Node</div>
+          </div>
+          <div class="col my-2">
             <label for="title">Title</label>
             <input type="text" id="txt_title" placeholder="title here..">
           </div> 
