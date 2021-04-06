@@ -189,6 +189,21 @@ class Node extends Base{
       fill(this.pressed ? [255, 0, 0, 50] : this.hover ? 170 : [100, 100, 100, 50]);
       rect(this.x, this.y, this.w, this.h);
     }
+
+    add_edge(output_knob)
+    {
+      if (this.hover)
+      {
+        let edge = output_knob.edges.find((edge) =>{return edge.input == this.uuid;});
+        if (this.type != output_knob.type && edge == undefined)
+        {
+          output_knob.edges.push(new Edge(this, output_knob));
+          output_knob.pressed = false;
+          return true;
+        }
+      }
+      return false;
+    }
   }
   
   class Edge extends Base
@@ -199,7 +214,6 @@ class Node extends Base{
       edges_dic[this.uuid] = this;
       this.input = input.uuid;
       this.output = output.uuid;
-      print(this.input, this.output);
     }
     
     render()

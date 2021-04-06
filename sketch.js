@@ -1,4 +1,5 @@
 
+let zoomx = 0, zoomy = 0;
 
 let zoom = 1; // scaleFactor
 var nodes = [];
@@ -33,7 +34,7 @@ function setup() {
   nodes.push(new Node(100, 100, 150, 150, 1));
   tinymce.init({
     selector: 'textarea',
-    menubar: false,
+    // menubar: false,
     plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
     toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
     toolbar_mode: 'floating',
@@ -43,38 +44,19 @@ function setup() {
   });
 }
 
-function add_nodes()
-{
-  for(let i=0; i<1000; i++)
-  {
-    nodes.push(new Node(Math.random()*10000, Math.random()*10000, 150, 150, "node" + i));
-  }
-  for(let i=0; i<1000; i++)
-  {
-    let ri = int(Math.random()*(nodes.length));
-    let node = nodes[int(Math.random()*(nodes.length))];
-    let knob = node.knob2;
-    knob.edges.push(
-      new Edge(
-        nodes[int(Math.random()*(nodes.length))].knob1, 
-        nodes[int(Math.random()*(nodes.length))].knob2));
-  }
+function applyScale(s) {
+  zoom = zoom * s;
+  zoomx = mouseX * (1-s) + zoomx * s;
+  zoomy = mouseY * (1-s) + zoomy * s;
 }
-
-function transposex(v){
-  return (v - pan.x)/ zoom ;
-}
-
-function transposey(v){
-  return (v - pan.y)/ zoom ;
-}
-
 function draw() {
   background(220);
+  push();
   
-  translate(pan.x, pan.y);
+  translate(zoomx, zoomy);
   scale(zoom);
-  
+  translate(pan.x, pan.y);
+
   for (let i=0; i < layer1.length; i++)
   {
     layer1[i]();
@@ -87,13 +69,13 @@ function draw() {
 
   draw_nodes();
   draw_selection();
-
-  scale(1/zoom);
-  translate(-pan.x, -pan.y);
-  
+  pop();
   fill(255, 0, 0);
   textSize(20);
-  text("fps:" + int(frameRate()), 10, 10, 200, 50);
+  text("fps:" + int(frameRate()), 10, 10, 200, 20);
+  fill(255, 255, 0);
+  text("press N to add node", 10, 30, 200, 20);
+
 }
 
 function draw_selected_edge()
@@ -158,7 +140,6 @@ function check_deselect()
 }
 
 function mousePressed(event) {
-  deselect = check_deselect();
   mouse_state = MouseState.Press;
   mouse_press.x = mouseX;
   mouse_press.y = mouseY;
@@ -171,9 +152,11 @@ function mousePressed(event) {
     panning = true;
     mouse_last.x = mouseX;
     mouse_last.y = mouseY;
+    return;
   }
   else
   {
+    deselect = check_deselect();
     panning = false;
     dragging = deselect;
     if (output_knob != undefined)
@@ -184,17 +167,12 @@ function mousePressed(event) {
     for (let i=0; i < nodes.length; i++)
     {
       nodes[i].is_pressed(transposex(mouseX), transposey(mouseY));
-
       // check input/output knob pressed
       if (output_knob != undefined)
       {
-        if (nodes[i].knob1.hover)
-        {
-          input_knob = nodes[i].knob1;
-          output_knob.edges.push(new Edge(input_knob, output_knob));
-          output_knob.pressed = false;
-          input_knob = undefined;
+        if (nodes[i].knob1.add_edge(output_knob)){
           output_knob = undefined;
+          break;
         }
       }
       else
@@ -222,6 +200,23 @@ function mousePressed(event) {
 
 function mouseDragged() {
   mouse_state = MouseState.Drag;
+  if (!panning)
+  {
+    rect_select();
+  
+  }
+  else
+  {
+    pan.x += (mouseX - mouse_last.x)/zoom;
+    pan.y += (mouseY - mouse_last.y)/zoom;
+  }
+  
+  mouse_last.x = mouseX;
+  mouse_last.y = mouseY;
+}
+
+function rect_select()
+{
   for (let i=0; i < nodes.length; i++)
   {
     if (nodes[i].pressed)
@@ -239,13 +234,6 @@ function mouseDragged() {
     selected_nodes[i].x += ((mouseX-mouse_last.x));
     selected_nodes[i].y += ((mouseY-mouse_last.y));
   }
-  if (panning)
-  {
-    pan.x += mouseX - mouse_last.x;
-    pan.y += mouseY - mouse_last.y;
-  }
-  mouse_last.x = mouseX;
-  mouse_last.y = mouseY;
 }
 
 function mouseReleased() {
@@ -286,10 +274,7 @@ function keyPressed() {
   }
 }
 window.addEventListener("wheel", function(e) {
-  if (e.deltaY < 0)
-    zoom *= 1.05;
-  else
-    zoom *= 0.95;
+  applyScale(e.deltaY < 0 ? 1.05 : 0.95);
 });
 
 function on_node_selected(node)
