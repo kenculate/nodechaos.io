@@ -1,6 +1,5 @@
 
 let zoomx = 0, zoomy = 0;
-
 let zoom = 1; // scaleFactor
 var nodes = [];
 var selected_nodes = [];
@@ -27,10 +26,12 @@ var MouseState = {
 };
 var mouse_state = MouseState.None;
 var book_state = BookState.Edit;
-
+var mouse_in = false;
 function setup() {
   var canvas = createCanvas(10000, 10000);
   canvas.parent('canvasdiv');
+  canvas.mouseOut(mouseOut);
+  canvas.mouseOver(mouseOver);
   nodes.push(new Node(100, 100, 150, 150, 1));
   tinymce.init({
     selector: 'textarea',
@@ -77,6 +78,17 @@ function draw() {
   text("press N to add node", 10, 30, 200, 20);
 
 }
+function mouseOut()
+{
+  mouse_in = false;
+}
+
+
+function mouseOver()
+{
+  mouse_in = true;
+}
+
 
 function draw_selected_edge()
 {
@@ -140,6 +152,7 @@ function check_deselect()
 }
 
 function mousePressed(event) {
+  if (!mouse_in) return;
   mouse_state = MouseState.Press;
   mouse_press.x = mouseX;
   mouse_press.y = mouseY;
@@ -156,9 +169,12 @@ function mousePressed(event) {
   }
   else
   {
-    deselect = check_deselect();
+    dragging = check_deselect();
+    if (dragging){
+      editing_node = undefined;
+      toggle_item_entries(true);
+    }
     panning = false;
-    dragging = deselect;
     if (output_knob != undefined)
     {
       output_knob.pressed = false;
@@ -198,7 +214,10 @@ function mousePressed(event) {
   }
 }
 
+
 function mouseDragged() {
+  if (!mouse_in) return;
+
   mouse_state = MouseState.Drag;
   if (!panning)
   {
@@ -256,6 +275,7 @@ function mouseReleased() {
   mouse_press.y = 0;
 }
 
+
 function doubleClicked()
 {
   for (let i=0; i < nodes.length; i++)
@@ -266,6 +286,8 @@ function doubleClicked()
     }
   }
 }
+
+
 function keyPressed() {
   // 78 == n
   if (keyCode == 78)
@@ -273,13 +295,19 @@ function keyPressed() {
     nodes.push(new Node(transposex(mouseX), transposey(mouseY), 150, 150, nodes[nodes.length-1].index+1));
   }
 }
+
+
 window.addEventListener("wheel", function(e) {
   applyScale(e.deltaY < 0 ? 1.05 : 0.95);
 });
 
+
 function on_node_selected(node)
 {
+
   editing_node = node;
+  toggle_item_entries(false);
+
   document.getElementById("txt_title").value = node.detail.title;
   tinymce.get("textarea").setContent(node.detail.text?node.detail.text:'');
   var table = document.getElementById("edge_table");
@@ -293,13 +321,28 @@ function on_node_selected(node)
     var row = table.insertRow(table.rows.length);
     let output = nodes_dic[knobs_dic[node.knob2.edges[i].input].node];
     row.onclick = (event, selected_node=output) => {
-      on_node_selected(selected_node);
+      load_next_node(selected_node);
     }
     var cell = row.insertCell(0);
     var newText = document.createTextNode(output.detail.title);
     cell.appendChild(newText);
+
   }
 }
+
+function load_next_node(node)
+{
+  for(var key in node.detail.items)
+  {
+    let detail_item = node.detail.items[key];
+    if (detail_item.acquire > 0){
+      inventory.items[key].stock += detail_item.acquire;
+      document.getElementById(key + '__stock').value = inventory.items[key].stock;
+    }
+  }
+  on_node_selected(node);
+}
+
 
 function save_clicked()
 {
@@ -308,20 +351,30 @@ function save_clicked()
   editing_node.detail.short_text = tinymce.get("textarea").getContent({ format: 'text' }).substring(0, 60) + '..';
 }
 
+
 function openbook_clicked()
 {
   document.getElementById("file").click();
 }
 
+
 function savebook_clicked()
 {
   var fileName = 'nodechaos_book.json';
-  var fileToSave = new Blob([JSON.stringify(nodes)], {
+  let data = {
+    nodes: nodes,
+    inventory: inventory
+  }
+  var fileToSave = new Blob([JSON.stringify(data, function(key, value){
+    if (!key.includes('__'))
+      return value;
+  })], {
       type: 'application/json',
       name: fileName
   });
   saveAs(fileToSave, fileName);
 }
+
 
 window.addEventListener('load', function() {
   var upload = document.getElementById('file');

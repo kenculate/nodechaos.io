@@ -9,9 +9,11 @@ function reset_data()
   nodes=[];
 }
 
-function load_data(nodes_data)
+function load_data(data)
 {
   reset_data();
+  let nodes_data = data['nodes'];
+  inventory = new Inventory(data['inventory']);
   for(var i=0; i< nodes_data.length;i++)
   {
     var node = new Node(

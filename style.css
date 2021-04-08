@@ -11,6 +11,7 @@ canvas {
 }
 
 .bg-blue{
+  border-radius: 5px;
   background-color: #337ab7;
 }
 
