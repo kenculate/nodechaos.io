@@ -29,8 +29,8 @@ function load_data(data)
     for(var j=0; j< nodes_data[i].knob2.edges.length;j++)
     {
       var edge = new Edge(
-        knobs_dic[nodes_data[i].knob2.edges[j].input],
-        knobs_dic[nodes_data[i].knob2.edges[j].output],
+        knobs_dic[nodes_data[i].knob2.edges[j].input_id].uuid,
+        knobs_dic[nodes_data[i].knob2.edges[j].output_id].uuid,
         nodes_data[i].knob2.edges[j].uuid
       ); 
       
@@ -64,16 +64,17 @@ class Node extends Base{
       this.y = y;
       this.w = w;
       this.h = h;
-      this.hover = false;
-      this.pressed = false;
-      this.selected = false;
-      this.title_height = 20;
-      this.knob_size = 20;
-      this.knob1 = new Knob(this, 0, 0, 20, 20, KnobType.input, knob1_uuid);
-      this.knob2 = new Knob(this, 0, 0, 20, 20, KnobType.output, knob2_uuid);
-      this.knob_rect1 = [0, 0, 0, 0];
-      this.knob_rect2 = [0, 0, 0, 0];
-      this.knob_hover = 0;
+      this.knob1 = new Knob(this, 0, 0, 20, 20, KnobType.input_id, knob1_uuid);
+      this.knob2 = new Knob(this, 0, 0, 20, 20, KnobType.output_id, knob2_uuid);
+      
+      this.__hover = false;
+      this.__pressed = false;
+      this.__selected = false;
+      this.__title_height = 20;
+      this.__knob_size = 20;
+      this.__knob_rect1 = [0, 0, 0, 0];
+      this.__knob_rect2 = [0, 0, 0, 0];
+      this.__knob_hover = 0;
     }
 
     render(){
@@ -82,22 +83,22 @@ class Node extends Base{
         stroke('#FFD16E');
         strokeWeight(10);
       }
-      fill(this.selected ? [255, 0, 0] : this.hover ? [0, 0, 255] : this.pressed ? [0, 255, 0] : 50);
+      fill(this.__selected ? [255, 0, 0] : this.__hover ? [0, 0, 255] : this.__pressed ? [0, 255, 0] : 50);
       rect(this.x, this.y, this.w, this.h);
       noStroke();
       strokeWeight(1);
 
       fill(100);
-      rect(this.x, this.y, this.w, this.title_height);
+      rect(this.x, this.y, this.w, this.__title_height);
       
       fill(255);
 
       // textAlign(CENTER, CENTER);
-      text(this.detail.title, this.x + 5, this.y, this.w - 5, this.title_height);
+      text(this.detail.title, this.x + 5, this.y, this.w - 5, this.__title_height);
       text(this.detail.short_text, 
-        this.x + 5, this.y + this.title_height + 5, this.w - 15, this.h - + this.title_height + 5);
-      this.knob1.set_rect(this.x - this.knob_size, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
-      this.knob2.set_rect(this.x + this.w, this.y + this.title_height + this.knob_size, this.knob_size, this.knob_size);
+        this.x + 5, this.y + this.__title_height + 5, this.w - 15, this.h - + this.__title_height + 5);
+      this.knob1.set_rect(this.x - this.__knob_size, this.y + this.__title_height + this.__knob_size, this.__knob_size, this.__knob_size);
+      this.knob2.set_rect(this.x + this.w, this.y + this.__title_height + this.__knob_size, this.__knob_size, this.__knob_size);
       
       noStroke();
       this.knob1.render();
@@ -107,28 +108,28 @@ class Node extends Base{
     
     is_hover(x, y)
     {
-      this.hover = this.rect_check(x, y, this.x, this.y, this.w, this.h);
-      return this.hover;
+      this.__hover = this.rect_check(x, y, this.x, this.y, this.w, this.h);
+      return this.__hover;
     }
 
     is_pressed(x, y)
     {
-      this.pressed = this.rect_check(x, y, this.x, this.y, this.w, this.h);
-      return this.pressed;
+      this.__pressed = this.rect_check(x, y, this.x, this.y, this.w, this.h);
+      return this.__pressed;
     }
 
     is_selected()
     {
-      this.selected = this.hover;
-      return this.selected;
+      this.__selected = this.__hover;
+      return this.__selected;
     }
     
     intersect(left, top, right, bottom)
     {
       [left, right] = right < left ? [right, left] : [left, right];
       [top, bottom] = bottom < top ? [bottom, top] : [top, bottom];
-      this.hover = this.x > left && this.x + this.w < right && this.y > top && this.y + this.h < bottom;
-      return this.hover;
+      this.__hover = this.x > left && this.x + this.w < right && this.y > top && this.y + this.h < bottom;
+      return this.__hover;
     }
     
     rect_check(xin, yin, x, y, w, h)
@@ -139,10 +140,10 @@ class Node extends Base{
     is_inside(x, y)
     {
       
-      this.knob1.hover = this.rect_check(x, y, this.knob1.x, this.knob1.y,  this.knob1.w, this.knob1.h);
-      this.knob2.hover = this.rect_check(x, y, this.knob2.x, this.knob2.y,  this.knob2.w, this.knob2.h);
+      this.knob1.__hover = this.rect_check(x, y, this.knob1.x, this.knob1.y,  this.knob1.w, this.knob1.h);
+      this.knob2.__hover = this.rect_check(x, y, this.knob2.x, this.knob2.y,  this.knob2.w, this.knob2.h);
       
-      return this.hover;
+      return this.__hover;
     }
   }
   var KnobType = {
@@ -157,16 +158,16 @@ class Node extends Base{
     {
       super(uuid);
       knobs_dic[this.uuid] = this;
-      this.node = node.uuid;
+      this.node_id = node.uuid;
       this.x = x;
       this.y = y;
       this.w = w;
       this.h = h;
       this.type = type;
-      this.hover = false;
-      this.pressed = false;
+      this.__hover = false;
+      this.__pressed = false;
       this.edges = [];
-      this.center = new vector(x + (this.type == KnobType.input ? 0 : w), y + (h/2));
+      this.__center = new vector(x + (this.type == KnobType.input_id ? 0 : w), y + (h/2));
     }
     
     set_rect(x, y, w, h)
@@ -175,7 +176,7 @@ class Node extends Base{
       this.y = y;
       this.w = w;
       this.h = h;
-      this.center.set(x + (this.type == KnobType.input ? 0 : w), y + (h/2));
+      this.__center.set(x + (this.type == KnobType.input_id ? 0 : w), y + (h/2));
     }
     
     render()
@@ -188,19 +189,19 @@ class Node extends Base{
         this.edges[i].render();
       }
       noStroke();
-      fill(this.pressed ? [255, 0, 0, 50] : this.hover ? 170 : [100, 100, 100, 50]);
+      fill(this.__pressed ? [255, 0, 0, 50] : this.__hover ? 170 : [100, 100, 100, 50]);
       rect(this.x, this.y, this.w, this.h);
     }
 
     add_edge(output_knob)
     {
-      if (this.hover)
+      if (this.__hover)
       {
-        let edge = output_knob.edges.find((edge) =>{return edge.input == this.uuid;});
+        let edge = output_knob.edges.find((edge) =>{return edge.input_id == this.uuid;});
         if (this.type != output_knob.type && edge == undefined)
         {
-          output_knob.edges.push(new Edge(this, output_knob));
-          output_knob.pressed = false;
+          output_knob.edges.push(new Edge(this.uuid, output_knob.uuid));
+          output_knob.__pressed = false;
           return true;
         }
       }
@@ -214,8 +215,8 @@ class Node extends Base{
     {
       super(uuid);
       edges_dic[this.uuid] = this;
-      this.input = input.uuid;
-      this.output = output.uuid;
+      this.input_id = input;
+      this.output_id = output;
     }
     
     render()
@@ -223,14 +224,14 @@ class Node extends Base{
       noFill();
       stroke('#13489C');
       curve(
-        knobs_dic[this.output].center.x-250, 
-        knobs_dic[this.output].center.y, 
-        knobs_dic[this.output].center.x, 
-        knobs_dic[this.output].center.y,
-        knobs_dic[this.input].center.x, 
-        knobs_dic[this.input].center.y, 
-        knobs_dic[this.input].center.x+250, 
-        knobs_dic[this.input].center.y 
+        knobs_dic[this.output_id].__center.x-250, 
+        knobs_dic[this.output_id].__center.y, 
+        knobs_dic[this.output_id].__center.x, 
+        knobs_dic[this.output_id].__center.y,
+        knobs_dic[this.input_id].__center.x, 
+        knobs_dic[this.input_id].__center.y, 
+        knobs_dic[this.input_id].__center.x+250, 
+        knobs_dic[this.input_id].__center.y 
       )
       stroke(0, 0, 255);
     }

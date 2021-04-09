@@ -7,7 +7,14 @@ var ItemType = {
 var toggle_inventory = false;
 
 
-
+function reset_stocks(){
+  for(let i=0;i<nodes.length;i++){
+    for (let item in nodes.detail.items){
+      nodes.detail.items[item].__stock = 0;
+      nodes.detail.items[item].__acquire = 0;
+    }
+  }
+}
 class Inventory{
   constructor(inventory_data=null)
   {
@@ -46,6 +53,9 @@ class Item extends Base{
     <td class="px-0 mx-0"><input id='` + this.uuid + `__acquire' class="w-100" type="number" onchange=item_onchange('` + this.uuid + `__acquire') value=0></td>
     <td class="px-0 mx-0"><input id='` + this.uuid + `__stock' class="w-100" type="number" onchange=item_onchange('` + this.uuid + `__stock') value=0></td>
   `;
+  }
+
+  update_view(){
   }
 }
 

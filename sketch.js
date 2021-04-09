@@ -95,7 +95,7 @@ function draw_selected_edge()
   if (output_knob != undefined)
   {
     stroke(0, 0, 255);
-    line(output_knob.center.x, output_knob.center.y, transposex(mouseX), transposey(mouseY));
+    line(output_knob.__center.x, output_knob.__center.y, transposex(mouseX), transposey(mouseY));
   }
 }
 function draw_selection()
@@ -121,7 +121,7 @@ function draw_nodes()
       {
         if (nodes[i].intersect(transposex(mouse_press.x), transposey(mouse_press.y), transposex(mouseX), transposey(mouseY)))
         {
-          nodes[i].hover = true;
+          nodes[i].__hover = true;
         }
       }
     nodes[i].render();
@@ -133,7 +133,7 @@ function check_deselect()
   deselect = true;
   for (let i=0; i < selected_nodes.length; i++)
   {
-    if (selected_nodes[i].hover)
+    if (selected_nodes[i].__hover)
     {
       deselect = false;
     }
@@ -142,9 +142,9 @@ function check_deselect()
   {
     for (let i=0; i < selected_nodes.length; i++)
     {
-      selected_nodes[i].hover = false;
-      selected_nodes[i].pressed = false;
-      selected_nodes[i].selected = false;
+      selected_nodes[i].__hover = false;
+      selected_nodes[i].__pressed = false;
+      selected_nodes[i].__selected = false;
     }
     selected_nodes = [];
   }
@@ -177,7 +177,7 @@ function mousePressed(event) {
     panning = false;
     if (output_knob != undefined)
     {
-      output_knob.pressed = false;
+      output_knob.__pressed = false;
     }
     var knob_clicked = false;
     for (let i=0; i < nodes.length; i++)
@@ -193,10 +193,10 @@ function mousePressed(event) {
       }
       else
       {
-        if (nodes[i].knob2.hover)
+        if (nodes[i].knob2.__hover)
         {
           output_knob = nodes[i].knob2;
-          output_knob.pressed = true;
+          output_knob.__pressed = true;
           knob_clicked = true;
           break;
         }  
@@ -207,7 +207,7 @@ function mousePressed(event) {
     {
       if (output_knob != undefined)
       {
-        output_knob.pressed = false;
+        output_knob.__pressed = false;
         output_knob = undefined;
       }
     }
@@ -238,7 +238,7 @@ function rect_select()
 {
   for (let i=0; i < nodes.length; i++)
   {
-    if (nodes[i].pressed)
+    if (nodes[i].__pressed)
     {
       dragging = false;
       if (!selected_nodes.includes(nodes[i]))
@@ -301,7 +301,6 @@ window.addEventListener("wheel", function(e) {
   applyScale(e.deltaY < 0 ? 1.05 : 0.95);
 });
 
-
 function on_node_selected(node)
 {
 
@@ -310,21 +309,40 @@ function on_node_selected(node)
 
   document.getElementById("txt_title").value = node.detail.title;
   tinymce.get("textarea").setContent(node.detail.text?node.detail.text:'');
-  var table = document.getElementById("edge_table");
-  var count = table.rows.length;
-  for(var i=0; i< count;i++)
+  let table = document.getElementById("edge_table");
+  let count = table.rows.length;
+  for(let i=0; i< count;i++)
   {
     table.deleteRow(0);
   }
-  for(var i=0; i< node.knob2.edges.length;i++)
+  for(let i=0; i< node.knob2.edges.length;i++)
   {
-    var row = table.insertRow(table.rows.length);
-    let output = nodes_dic[knobs_dic[node.knob2.edges[i].input].node];
-    row.onclick = (event, selected_node=output) => {
-      load_next_node(selected_node);
+    let row = table.insertRow(table.rows.length);
+    let output = nodes_dic[knobs_dic[node.knob2.edges[i].input_id].node_id];
+    
+    let cell = row.insertCell(0);
+    let title = output.detail.title;
+    let lock = false;
+    for(let key in output.detail.items){
+      print(node.detail.title, 
+        output.detail.title, 
+        inventory.items[key].name, 
+        output.detail.items[key].require, 
+        inventory.items[key].__stock, 
+        inventory.items[key].__stock > output.detail.items[key].require);
+      if (inventory.items[key].__stock < output.detail.items[key].require)
+      {
+        lock = true;
+        title += '(LOCK)';
+        break;
+      }
     }
-    var cell = row.insertCell(0);
-    var newText = document.createTextNode(output.detail.title);
+    if (!lock){
+      row.onclick = (event, selected_node=output) => {
+        load_next_node(selected_node);
+      }
+    }
+    let newText = document.createTextNode(title);
     cell.appendChild(newText);
 
   }
@@ -336,8 +354,17 @@ function load_next_node(node)
   {
     let detail_item = node.detail.items[key];
     if (detail_item.acquire > 0){
-      inventory.items[key].stock += detail_item.acquire;
-      document.getElementById(key + '__stock').value = inventory.items[key].stock;
+      if (!inventory.items[key].infinite)
+      {
+        inventory.items[key].__stock += detail_item.acquire - detail_item.__acquire;
+        detail_item.__acquire = detail_item.acquire;
+      }
+      else
+      {
+        inventory.items[key].__stock += detail_item.acquire;
+        document.getElementById(key + '__stock').value = inventory.items[key].__stock;
+      }
+      document.getElementById(key + '__stock').value = inventory.items[key].__stock;
     }
   }
   on_node_selected(node);
