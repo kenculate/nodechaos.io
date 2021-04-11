@@ -10,6 +10,11 @@ canvas {
   display: block;
 }
 
+
+.bg-gray{
+  background-color: #cccccc;
+}
+
 .bg-blue{
   border-radius: 5px;
   background-color: #337ab7;

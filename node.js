@@ -64,8 +64,8 @@ class Node extends Base{
       this.y = y;
       this.w = w;
       this.h = h;
-      this.knob1 = new Knob(this, 0, 0, 20, 20, KnobType.input_id, knob1_uuid);
-      this.knob2 = new Knob(this, 0, 0, 20, 20, KnobType.output_id, knob2_uuid);
+      this.knob1 = new Knob(this, 0, 0, 20, 20, KnobType.input, knob1_uuid);
+      this.knob2 = new Knob(this, 0, 0, 20, 20, KnobType.output, knob2_uuid);
       
       this.__hover = false;
       this.__pressed = false;
@@ -82,8 +82,10 @@ class Node extends Base{
       {
         stroke('#FFD16E');
         strokeWeight(10);
+      }else{
+        noStroke();
       }
-      fill(this.__selected ? [255, 0, 0] : this.__hover ? [0, 0, 255] : this.__pressed ? [0, 255, 0] : 50);
+      fill(this.__selected ? "#FFBC5E" : this.__hover ? "#54869C" : 50);
       rect(this.x, this.y, this.w, this.h);
       noStroke();
       strokeWeight(1);
@@ -167,7 +169,7 @@ class Node extends Base{
       this.__hover = false;
       this.__pressed = false;
       this.edges = [];
-      this.__center = new vector(x + (this.type == KnobType.input_id ? 0 : w), y + (h/2));
+      this.__center = new vector(x + (this.type == KnobType.input ? 0 : w), y + (h/2));
     }
     
     set_rect(x, y, w, h)
@@ -176,7 +178,7 @@ class Node extends Base{
       this.y = y;
       this.w = w;
       this.h = h;
-      this.__center.set(x + (this.type == KnobType.input_id ? 0 : w), y + (h/2));
+      this.__center.set(x + (this.type == KnobType.input ? 0 : w), y + (h/2));
     }
     
     render()
@@ -189,7 +191,7 @@ class Node extends Base{
         this.edges[i].render();
       }
       noStroke();
-      fill(this.__pressed ? [255, 0, 0, 50] : this.__hover ? 170 : [100, 100, 100, 50]);
+      fill(this.__pressed ? [255, 0, 0] : this.__hover ? 170 : [100, 100, 100]);
       rect(this.x, this.y, this.w, this.h);
     }
 
@@ -224,13 +226,13 @@ class Node extends Base{
       noFill();
       stroke('#13489C');
       curve(
-        knobs_dic[this.output_id].__center.x-250, 
+        knobs_dic[this.output_id].__center.x-450, 
         knobs_dic[this.output_id].__center.y, 
         knobs_dic[this.output_id].__center.x, 
         knobs_dic[this.output_id].__center.y,
         knobs_dic[this.input_id].__center.x, 
         knobs_dic[this.input_id].__center.y, 
-        knobs_dic[this.input_id].__center.x+250, 
+        knobs_dic[this.input_id].__center.x+450, 
         knobs_dic[this.input_id].__center.y 
       )
       stroke(0, 0, 255);

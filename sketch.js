@@ -13,7 +13,7 @@ var offset = new vector();
 var dragging = false;
 var panning = false;
 var layer1 = [];
-
+var canvas_size = new vector(10000, 10000);
 var BookState = {
   Read : 'Read',
   Edit : 'Edit'
@@ -28,11 +28,11 @@ var mouse_state = MouseState.None;
 var book_state = BookState.Edit;
 var mouse_in = false;
 function setup() {
-  var canvas = createCanvas(10000, 10000);
+  var canvas = createCanvas(canvas_size.x, canvas_size.y);
   canvas.parent('canvasdiv');
   canvas.mouseOut(mouseOut);
   canvas.mouseOver(mouseOver);
-  nodes.push(new Node(100, 100, 150, 150, 1));
+  nodes.push(new Node(100, 100, 300, 150, 1));
   tinymce.init({
     selector: 'textarea',
     // menubar: false,
@@ -50,10 +50,39 @@ function applyScale(s) {
   zoomx = mouseX * (1-s) + zoomx * s;
   zoomy = mouseY * (1-s) + zoomy * s;
 }
+
+function draw_grid(){
+  
+  let nx = 40;
+  let ny = 30;
+
+  let size = 10;
+  stroke(200);
+  for(let x=0;x<nx*10;x++){
+    line(x*size, 0, x*size, canvas_size.x);
+  }
+  for(let y=0;y<ny*10;y++){
+    line(0, y*size, canvas_size.y, y*size);
+  }
+  
+  size = 100;
+  stroke(50);
+  for(let x=0;x<nx;x++){
+    line(x*size, 0, x*size, canvas_size.x);
+  }
+  
+  for(let y=0;y<ny;y++){
+    line(0, y*size, canvas_size.y, y*size);
+  }
+
+}
 function draw() {
   background(220);
+  textSize(20);
+  textFont("Arial");
+
+  draw_grid();
   push();
-  
   translate(zoomx, zoomy);
   scale(zoom);
   translate(pan.x, pan.y);
@@ -71,11 +100,20 @@ function draw() {
   draw_nodes();
   draw_selection();
   pop();
+  
+  noStroke();
+
   fill(255, 0, 0);
   textSize(20);
   text("fps:" + int(frameRate()), 10, 10, 200, 20);
+  
   fill(255, 255, 0);
   text("press N to add node", 10, 30, 200, 20);
+  
+  textFont("Arial Black");
+  textSize(60);
+  fill(50, 50, 50, 50);
+  text("NODE CHAOS", 200, 0, 1200, 200);
 
 }
 function mouseOut()
@@ -222,7 +260,6 @@ function mouseDragged() {
   if (!panning)
   {
     rect_select();
-  
   }
   else
   {
@@ -248,12 +285,14 @@ function rect_select()
     }
     nodes[i].intersect(transposex(mouse_press.x), transposey(mouse_press.y), transposex(mouseX), transposey(mouseY));
   }
+
   for (let i=0; i < selected_nodes.length; i++)
   {
-    selected_nodes[i].x += ((mouseX-mouse_last.x));
-    selected_nodes[i].y += ((mouseY-mouse_last.y));
+    selected_nodes[i].x += transposex(mouseX)-transposex(mouse_last.x);
+    selected_nodes[i].y += transposey(mouseY)-transposey(mouse_last.y);
   }
 }
+
 
 function mouseReleased() {
   mouse_state = MouseState.Release;
@@ -292,7 +331,7 @@ function keyPressed() {
   // 78 == n
   if (keyCode == 78)
   {
-    nodes.push(new Node(transposex(mouseX), transposey(mouseY), 150, 150, nodes[nodes.length-1].index+1));
+    nodes.push(new Node(transposex(mouseX), transposey(mouseY), 300, 150, nodes[nodes.length-1].index+1));
   }
 }
 
@@ -375,7 +414,7 @@ function save_clicked()
 {
   editing_node.detail.title = document.getElementById("txt_title").value;
   editing_node.detail.text = tinymce.get("textarea").getContent();
-  editing_node.detail.short_text = tinymce.get("textarea").getContent({ format: 'text' }).substring(0, 60) + '..';
+  editing_node.detail.short_text = tinymce.get("textarea").getContent({ format: 'text' }).substring(0, 160) + '..';
 }
 
 
