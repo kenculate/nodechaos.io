@@ -65,8 +65,12 @@ function add_item_clicked()
   inventory.items[item.uuid] = item;
 }
 
-function toggle_item_entries()
+function toggle_item_entries(toggle)
 {
+  document.getElementById('txt_title').disabled = toggle;
+  tinymce.activeEditor.mode.set(toggle ? "readonly" : "design");
+  
+ 
   for(let key in inventory.items)
   {
     let require = document.getElementById(inventory.items[key].uuid + "__require");
