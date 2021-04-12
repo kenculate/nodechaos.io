@@ -3,6 +3,14 @@ html, body {
   padding: 0;
 }
 
+.scroll {
+  overflow-y: scroll;
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
 button {
   border-radius: 5px;
 }
@@ -20,11 +28,16 @@ canvas {
   background-color: #337ab7;
 }
 
-.btn{
+.btn-blue{
   border-radius: 5px;
+  text-align: center;
   background-color: #337ab7;
-
+  color: #fff;
+  position: relative;
+  margin-block: 5px;
+  margin-inline: 2px;
+  padding: 0px;
 }
-.btn:hover{
+.btn-blue:hover{
   background-color: #7fafda;
 }

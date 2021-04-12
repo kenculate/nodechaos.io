@@ -36,8 +36,8 @@ function setup() {
   tinymce.init({
     selector: 'textarea',
     // menubar: false,
-    plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
-    toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
+    plugins: 'directionality fullscreen advcode link linkchecker autolink wordcount lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
+    toolbar1: 'aligncenter alignjustify alignleft alignnone alignright blockquote backcolor forecolor fontselect fontsizeselect bold italic underline indent outdent code ltr rtl link checklist media pageembed wordcount fullscreen ',
     toolbar_mode: 'floating',
     tinycomments_mode: 'embedded',
     tinycomments_author: 'Author name',
@@ -337,6 +337,9 @@ function keyPressed() {
 
 
 window.addEventListener("wheel", function(e) {
+  if (!mouse_in) {
+    return;
+  }
   applyScale(e.deltaY < 0 ? 1.05 : 0.95);
 });
 

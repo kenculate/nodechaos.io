@@ -113,16 +113,3 @@ function item_onchange(element)
     editing_node.detail.items[item_uuid].acquire = int(document.getElementById(item_uuid + '__' +ItemType.Acquire).value); 
   }
 }
-
-function toggle_inventory_clicked(){
-  toggle_inventory = !toggle_inventory;
-  if (toggle_inventory)
-  {
-    document.getElementById("inventory").style.display = "block";
-    document.getElementById("text_editor").style.display = "none";
-    
-  }else{
-    document.getElementById("inventory").style.display = "none";
-    document.getElementById("text_editor").style.display = "block";
-  }
-}
