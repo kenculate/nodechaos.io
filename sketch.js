@@ -13,7 +13,7 @@ var offset = new vector();
 var dragging = false;
 var panning = false;
 var layer1 = [];
-var canvas_size = new vector(10000, 10000);
+var canvas_size = new vector(5000, 5000);
 var BookState = {
   Read : 'Read',
   Edit : 'Edit'
