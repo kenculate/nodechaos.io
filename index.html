@@ -57,7 +57,8 @@
           
           <div class="d-flex" style="height: 40px;">
             <input type="file" id="file" style="display:none;" />
-            <div class="flex-fill btn-blue"  id="button" name="button" value="Upload" onclick="openbook_clicked();">Open Book</div>
+            <div class="flex-fill btn-blue"  id="button" name="button" value="Upload" onclick="openbook_clicked();"
+            data-toggle="tooltip" title="open the book you already saved in your pc">Open Book</div>
             <div class="flex-fill btn-blue"  onclick="savebook_clicked()">Save Book</div>
           </div> 
 
@@ -67,13 +68,15 @@
                 <a  class="card-link my-auto" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true">
                   Text Editor
                 </a>
-                <div class="btn-blue w-25 btn ml-auto" onclick="save_clicked()">Save Node</div>
+                <div class="btn-blue w-25 btn ml-auto" onclick="save_clicked()"
+                data-toggle="tooltip" title="save the book in your pc">Save Node</div>
 
               </div>
         
               <div id="collapseOne" class="collapse show" >
                 <div class="card-body" >
-                  <div class="col px-0">
+                  <div class="col px-0"
+                  data-toggle="tooltip" title="the title of current select node">
                     <label for="title">Title</label>
                     <input type="text" id="txt_title" placeholder="title here..">
                   </div>
@@ -84,23 +87,32 @@
               </div>
             </div>
             <div class="card">
-              <div class="card-header d-flex pl-2 p-0" style="height: 40px;">
+              <div class="card-header d-flex pl-2 p-0" style="height: 40px;"
+              data-toggle="tooltip" title="you can define items or stats here in the inventory to be collected or be used in any nodes">
                 <a class="card-link my-auto" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true">
                   Inventory
                 </a>
-                <div class="btn-blue w-25 btn ml-auto" onclick="add_item_clicked()">Add Item</div>
-                <div class="btn-blue w-25 btn" onclick="reset_stocks()">Reset Stocks</div>
+                <div class="btn-blue w-25 btn ml-auto" onclick="add_item_clicked()"
+                data-toggle="tooltip" title="define a new item or stat">Add Item</div>
+                <div class="btn-blue w-25 btn" onclick="reset_stocks()"
+                data-toggle="tooltip" title="resets item's stock property">Reset Stocks</div>
               </div>
               <div id="collapseTwo" class="collapse show" >
                 <div class="card-body">
                   <table class='table table-striped table-hover' id='inventory_table'>
                     <tr class="p-0 m-0">
-                      <th class="col-1"></th>
-                      <th class="col-5">name</th>
-                      <th class="col-1">infinit</th>
-                      <th class="col-2">require</th>
-                      <th class="col-2">acquire</th>
-                      <th class="col-1">stock</th>
+                      <th class="col-1"
+                      data-toggle="tooltip" title="delete the item from book"></th>
+                      <th class="col-5"
+                      data-toggle="tooltip" title="name of the item">name</th>
+                      <th class="col-1"
+                      data-toggle="tooltip" title="true if number of the acquired item is infinite">infinite</th>
+                      <th class="col-2"
+                      data-toggle="tooltip" title="number of the required item to enter this node">require</th>
+                      <th class="col-2"
+                      data-toggle="tooltip" title="number of the item you will acquire in this node">acquire</th>
+                      <th class="col-1"
+                      data-toggle="tooltip" title="for reading/testing purpose, number of the items you have by reading the story">stock</th>
                     </tr>
                   </table>
                 </div>
@@ -108,11 +120,12 @@
             </div>
             <div class="card">
               <div class="card-header d-flex pl-2 p-0" style="height: 40px;">
-                <a class="card-link my-auto" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true">
+                <a class="card-link my-auto" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true"
+                data-toggle="tooltip" title="the nodes you will enter by this node">
                   Next Nodes
                 </a>
               </div>
-              <div id="collapseThree" class="collapse show" style="">
+              <div id="collapseThree" class="collapse show">
                 <div class="card-body">
                   <table class='table table-striped table-hover' id='edge_table'>
                   </table>
@@ -120,13 +133,16 @@
               </div>
             </div>
           </div>
-
-
         </div>
-
-
       </div>
     </div>
-          
+    
+    <!-- tooltips -->
+    <script>
+    $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();   
+    });
+    </script>
+
   </body>
 </html>
