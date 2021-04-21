@@ -13,7 +13,7 @@ var offset = new vector();
 var dragging = false;
 var panning = false;
 var layer1 = [];
-var canvas_size = new vector(5000, 5000);
+var canvas_size = new vector(screen.width, screen.height);
 var BookState = {
   Read : 'Read',
   Edit : 'Edit'
@@ -53,29 +53,26 @@ function applyScale(s) {
 
 function draw_grid(){
   
-  let nx = 40;
-  let ny = 30;
-
-  let size = 10;
+  let substep = 10;
+  let step = 100;
   stroke(200);
-  for(let x=0;x<nx*10;x++){
-    line(x*size, 0, x*size, canvas_size.x);
+  for(let y=0;y<canvas_size.y;y+=substep){
+    line(0, y, canvas_size.x, y);
   }
-  for(let y=0;y<ny*10;y++){
-    line(0, y*size, canvas_size.y, y*size);
+  for(let x=0;x<canvas_size.x;x+=substep){
+    line(x, 0, x, canvas_size.y);
   }
-  
-  size = 100;
+
   stroke(50);
-  for(let x=0;x<nx;x++){
-    line(x*size, 0, x*size, canvas_size.x);
+  for(let y=0;y<canvas_size.y;y+=step){
+    line(0, y, canvas_size.x, y);
   }
-  
-  for(let y=0;y<ny;y++){
-    line(0, y*size, canvas_size.y, y*size);
+  for(let x=0;x<canvas_size.x;x+=step){
+    line(x, 0, x, canvas_size.y);
   }
 
 }
+
 function draw() {
   background(220);
   textSize(20);
