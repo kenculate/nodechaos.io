@@ -45,8 +45,9 @@ class Item extends Base{
     let table = document.getElementById("inventory_table");
     let count = table.rows.length;
     let row = table.insertRow(table.rows.length);
+    row.id = this.uuid + '__row';
     row.innerHTML = `
-    <td><i class="fa fa-trash p-0 m-0"></i></td>
+    <td><i class="btn fa fa-trash p-0 m-0" onclick=delete_item('`+ this.uuid +`')></i></td>
     <td class="px-0 mx-0"><input id='` + this.uuid + `__name' class="w-100" type="text" onchange=item_onchange('` + this.uuid + `__name') value=` + this.name + `></td>
     <td class="px-0 mx-0"><input id='` + this.uuid + `__infinite' class="w-100" type="checkbox" onchange=item_onchange('` + this.uuid + `__infinite') checked=` + this.infinite + `></td>
     <td class="px-0 mx-0"><input id='` + this.uuid + `__require' class="w-100" type="number" onchange=item_onchange('` + this.uuid + `__require') value=0></td>
@@ -59,6 +60,22 @@ class Item extends Base{
   }
 }
 
+function delete_item(item_uuid)
+{
+  let row_id = item_uuid+'__row';
+  let row = document.getElementById(row_id);
+  delete inventory.items[item_uuid];
+  for (let i=0; i < nodes.length; i++)
+  {
+    for(let key in nodes[i].detail.items)
+    {
+      if (nodes[i].detail.items[key].item_id == item_uuid){
+        delete nodes[i].detail.items[key];
+      }
+    }
+  }
+  row.remove();
+}
 function add_item_clicked()
 {
   let item = new Item();

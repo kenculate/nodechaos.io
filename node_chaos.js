@@ -14,6 +14,7 @@ var dragging = false;
 var panning = false;
 var layer1 = [];
 var canvas_size = new vector(screen.width, screen.height);
+var item_deleted = false;
 var BookState = {
   Read : 'Read',
   Edit : 'Edit'
@@ -35,7 +36,7 @@ function setup() {
   nodes.push(new Node(100, 100, 300, 150, 1));
   tinymce.init({
     selector: 'textarea',
-    // menubar: false,
+    // menubar: false,              
     plugins: 'directionality fullscreen advcode link linkchecker autolink wordcount lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
     toolbar1: 'aligncenter alignjustify alignleft alignnone alignright blockquote backcolor forecolor fontselect fontsizeselect bold italic underline indent outdent code ltr rtl link checklist media pageembed wordcount fullscreen ',
     toolbar_mode: 'floating',
@@ -147,6 +148,8 @@ function draw_nodes()
 
   for (let i=0; i < nodes.length; i++)
   {
+    if (!item_deleted){
+
       nodes[i].is_hover(transposex(mouseX), transposey(mouseY));
       if (!dragging)
       {
@@ -159,7 +162,12 @@ function draw_nodes()
           nodes[i].__hover = true;
         }
       }
-    nodes[i].render();
+      nodes[i].render();
+    }
+    else{
+      item_deleted = false;
+      return;
+    }
   }
 }
 
@@ -325,10 +333,30 @@ function doubleClicked()
 
 
 function keyPressed() {
-  // 78 == n
-  if (keyCode == 78)
+  if (!mouse_in) return;
+  // 46 == delete
+  if (keyCode == 46)
   {
-    nodes.push(new Node(transposex(mouseX), transposey(mouseY), 300, 150, nodes[nodes.length-1].index+1));
+    if (editing_node)
+    {
+      let index = nodes.indexOf(editing_node);
+      print(index);
+      if (index>=0){
+        print(nodes, nodes.length);
+        nodes.splice(index, 1);
+        item_deleted = true;
+        editing_node = undefined;
+        print(nodes, nodes.length);
+      }
+    }
+  }
+  // 78 == n
+  else if (keyCode == 78)
+  {
+    let index = nodes.length > 0 ? nodes[nodes.length-1].index+1 : 1;
+    let node = new Node(transposex(mouseX), transposey(mouseY), 300, 150, index);
+    nodes.push(node);
+    print(nodes);
   }
 }
 
