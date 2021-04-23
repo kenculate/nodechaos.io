@@ -391,12 +391,6 @@ function on_node_selected(node)
     let title = output.detail.title;
     let lock = false;
     for(let key in output.detail.items){
-      print(node.detail.title, 
-        output.detail.title, 
-        inventory.items[key].name, 
-        output.detail.items[key].require, 
-        inventory.items[key].__stock, 
-        inventory.items[key].__stock > output.detail.items[key].require);
       if (inventory.items[key].__stock < output.detail.items[key].require)
       {
         lock = true;
@@ -404,14 +398,14 @@ function on_node_selected(node)
         break;
       }
     }
+    let newText = document.createTextNode(title);
+    cell.appendChild(newText);
     if (!lock){
+      cell.classList.add("btn");
       row.onclick = (event, selected_node=output) => {
         load_next_node(selected_node);
       }
     }
-    let newText = document.createTextNode(title);
-    cell.appendChild(newText);
-
   }
 }
 
