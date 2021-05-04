@@ -37,7 +37,7 @@ function setup() {
   tinymce.init({
     selector: 'textarea',
     // menubar: false,              
-    plugins: 'directionality fullscreen advcode link linkchecker autolink wordcount lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
+    plugins: 'directionality fullscreen link autolink wordcount lists media table ',
     toolbar1: 'aligncenter alignjustify alignleft alignnone alignright blockquote backcolor forecolor fontselect fontsizeselect bold italic underline indent outdent code ltr rtl link checklist media pageembed wordcount fullscreen ',
     toolbar_mode: 'floating',
     tinycomments_mode: 'embedded',
@@ -105,8 +105,9 @@ function draw() {
   textSize(20);
   text("fps:" + int(frameRate()), 10, 10, 200, 20);
   
-  fill(255, 255, 0);
+  fill(255, 100, 0);
   text("press N to add node", 10, 30, 200, 20);
+  text("double click on nodes to edit", 10, 50, 300, 20);
   
   textFont("Arial Black");
   textSize(60);
